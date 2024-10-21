@@ -48,7 +48,12 @@ public class Order implements Comparable<Order>, Serializable {
         this.total = total * (1 - discount / 100);
     }
 
-    private Order() {}
+    Order() {
+        this.setStatus(OrderStatus.PENDING);
+        this.setDateOrdered(new Date());
+        this.discount = 0.0f;
+        this.total = 0;
+    }
 
     /**
      * Creates an Order object with the specified items and customer name.
@@ -60,20 +65,11 @@ public class Order implements Comparable<Order>, Serializable {
      * @throws MenuItemNotFound if an item in the order is not found in the menu
      * @throws InvalidFileFormat if the menu file is not in the correct format
      */
-    public Order(String[] items, String customerName) throws MenuItemNotFound, InvalidFileFormat {
+    public Order(String[] items, String customerName, float discount) throws MenuItemNotFound, InvalidFileFormat {
+        this();
         this.setItems(items);
-        this.setCustomerName(customerName);
-        this.setStatus(OrderStatus.PENDING);
-        this.setDateOrdered(new Date());
-    }
-
-    public Order(String[] items, OrderStatus status, String customerName, float discount, Date dateOrdered, float total) {
-        this.items = items.clone();
-        this.setStatus(status);
-        this.setCustomerName(customerName);
         this.setDiscount(discount);
-        this.setDateOrdered(dateOrdered);
-        this.setTotal(total);
+        this.setCustomerName(customerName);
     }
 
     private void setTotal(float total) {
@@ -109,8 +105,8 @@ public class Order implements Comparable<Order>, Serializable {
         if(items == null) {
             throw new IllegalArgumentException("Items cannot be null.");
         }
-        calculateTotal();
         this.items = items.clone();
+        calculateTotal();
     }
 
     /**
@@ -129,12 +125,15 @@ public class Order implements Comparable<Order>, Serializable {
      * Sets the discount of the order.
      *
      * @param discount the discount of the order
+     * @throws MenuItemNotFound if an item in the order is not found in the menu
+     * @throws InvalidFileFormat if the menu file is not in the correct format
      */
-    public void setDiscount(float discount) {
-        if(discount < 0 || discount > 1) {
-            throw new IllegalArgumentException("Discount cannot be negative or above 1.");
+    public void setDiscount(float discount) throws MenuItemNotFound, InvalidFileFormat {
+        if(discount < 0 || discount > 100) {
+            throw new IllegalArgumentException("Discount cannot be negative or above 100.");
         }
         this.discount = discount;
+        calculateTotal();
     }
 
     @Override
@@ -163,7 +162,7 @@ public class Order implements Comparable<Order>, Serializable {
     }
 
     public float getTotal() {
-        return total * (1 - discount / 100);
+        return total;
     }
 
     public float getDiscount() {
