@@ -6,30 +6,38 @@ import java.io.*;
 import java.util.HashMap;
 
 public class MenuItems {
-    private static HashMap<String, Float> items;
+    private static MenuItems INSTANCE;
+    private HashMap<String, Float> items;
 
     /**
      * Gets the items in the menu as a singleton.
+     *
      * @return the items in the menu
      */
-    public static HashMap<String, Float> get() {
-        if(items == null) {
-            File file = new File("items.csv");
-            if (file.exists()) {
-                loadItemsFromFile(file);
-            } else {
-                loadDefaultItems(file);
-            }
+    public static HashMap<String, Float> get() throws InvalidFileFormat {
+        if(INSTANCE == null) {
+            INSTANCE = new MenuItems();
         }
-        return items;
+        return INSTANCE.items;
+    }
+    
+    private MenuItems() throws InvalidFileFormat {
+        String menuItemsFileName = Restaurant.getMenuItemsFileName();
+        File file = new File(menuItemsFileName);
+        if (file.exists()) {
+            loadItemsFromFile(file);
+        } else {
+            loadDefaultItems(file);
+        }
     }
 
     /**
      * Loads the items from a file.
+     *
      * @param file the file to load the items from
-     * @throws NumberFormatException if the price in the file is not a valid number
+     * @throws InvalidFileFormat if the file is not in the correct format
      */
-    private static void loadItemsFromFile(File file) {
+    private void loadItemsFromFile(File file) throws InvalidFileFormat {
         items = new HashMap<>();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             String line;
@@ -46,17 +54,18 @@ public class MenuItems {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch(NumberFormatException | InvalidFileFormat e) {
+        } catch(InvalidFileFormat e) {
             loadDefaultItems(file);
-            // TODO: add toast messages
+            throw e;
         }
     }
 
     /**
      * Loads the default items and writes them to a file.
+     *
      * @param file the file to write the items to
      */
-    private static void loadDefaultItems(File file) {
+    private void loadDefaultItems(File file) {
         items = new HashMap<>();
         items.put("Burger", 5.9f);
         items.put("Pizza", 7.2f);

@@ -1,5 +1,6 @@
 package v4n.mtirestaurantreporter.classes;
 
+import v4n.mtirestaurantreporter.exceptions.InvalidFileFormat;
 import v4n.mtirestaurantreporter.exceptions.MenuItemNotFound;
 
 import java.io.Serializable;
@@ -8,7 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class Order implements Cloneable, Comparable<Order>, Serializable {
+public class Order implements Comparable<Order>, Serializable {
     private String[] items;
     private OrderStatus status;
     private Date dateOrdered;
@@ -17,7 +18,8 @@ public class Order implements Cloneable, Comparable<Order>, Serializable {
     private float total;
 
     /**
-     * Compares this Order object with another Order object based on the order date.
+     * Compares this Order object with another Order object based on {@link Date#compareTo(Date)}.
+     *
      * @param order the Order object to compare with
      * @return a negative integer, zero, or a positive integer as this Order object is less than, equal to, or greater than the specified Order object.
      */
@@ -26,11 +28,13 @@ public class Order implements Cloneable, Comparable<Order>, Serializable {
         return dateOrdered.compareTo(order.dateOrdered);
     }
 
-    /*
+    /**
      * Calculates the total price of the order.
+     *
      * @throws MenuItemNotFound if an item in the order is not found in the menu
+     * @throws InvalidFileFormat if the menu file is not in the correct format
      */
-    private void calculateTotal() throws MenuItemNotFound {
+    private void calculateTotal() throws MenuItemNotFound, InvalidFileFormat {
         float total = 0;
         HashMap<String, Float> menuItems = MenuItems.get();
         for (String item : items) {
@@ -41,36 +45,35 @@ public class Order implements Cloneable, Comparable<Order>, Serializable {
                 throw new MenuItemNotFound("Item not found in the menu: " + item);
             }
         }
-        this.total = total;
+        this.total = total * (1 - discount / 100);
     }
 
     private Order() {}
 
-    public Order(String[] items, String customerName) {
+    /**
+     * Creates an Order object with the specified items and customer name.
+     * The order status is set to {@link OrderStatus#PENDING}.
+     * The date ordered is set to the {@link Date#Date()}.
+     *
+     * @param items        the items in the order
+     * @param customerName the name of the customer
+     * @throws MenuItemNotFound if an item in the order is not found in the menu
+     * @throws InvalidFileFormat if the menu file is not in the correct format
+     */
+    public Order(String[] items, String customerName) throws MenuItemNotFound, InvalidFileFormat {
         this.setItems(items);
         this.setCustomerName(customerName);
+        this.setStatus(OrderStatus.PENDING);
         this.setDateOrdered(new Date());
     }
 
     public Order(String[] items, OrderStatus status, String customerName, float discount, Date dateOrdered, float total) {
-        this.setItems(items);
+        this.items = items.clone();
         this.setStatus(status);
         this.setCustomerName(customerName);
         this.setDiscount(discount);
         this.setDateOrdered(dateOrdered);
         this.setTotal(total);
-    }
-
-    @Override
-    public Order clone() {
-        Order order = new Order();
-        order.setItems(this.items);
-        order.setStatus(this.status);
-        order.setCustomerName(this.customerName);
-        order.setDiscount(this.discount);
-        order.setDateOrdered(this.dateOrdered);
-        order.setTotal(this.total);
-        return order;
     }
 
     private void setTotal(float total) {
@@ -87,13 +90,34 @@ public class Order implements Cloneable, Comparable<Order>, Serializable {
         this.dateOrdered = dateOrdered;
     }
 
-    public void setItems(String[] items) {
+    private void setCustomerName(String customerName) {
+        if(customerName == null || customerName.isEmpty()) {
+            throw new IllegalArgumentException("Customer name cannot be null or empty.");
+        }
+        this.customerName = customerName;
+    }
+
+    /**
+     * Sets the items in the order and calculates the total price.
+     *
+     * @see #calculateTotal()
+     * @param items the items in the order
+     * @throws MenuItemNotFound if an item in the order is not found in the menu
+     * @throws InvalidFileFormat if the menu file is not in the correct format
+     */
+    public void setItems(String[] items) throws MenuItemNotFound, InvalidFileFormat {
         if(items == null) {
             throw new IllegalArgumentException("Items cannot be null.");
         }
+        calculateTotal();
         this.items = items.clone();
     }
 
+    /**
+     * Sets the status of the order.
+     *
+     * @param status the status of the order
+     */
     public void setStatus(OrderStatus status) {
         if(status == null) {
             throw new IllegalArgumentException("Status cannot be null.");
@@ -101,13 +125,11 @@ public class Order implements Cloneable, Comparable<Order>, Serializable {
         this.status = status;
     }
 
-    public void setCustomerName(String customerName) {
-        if(customerName == null || customerName.isEmpty()) {
-            throw new IllegalArgumentException("Customer name cannot be null or empty.");
-        }
-        this.customerName = customerName;
-    }
-
+    /**
+     * Sets the discount of the order.
+     *
+     * @param discount the discount of the order
+     */
     public void setDiscount(float discount) {
         if(discount < 0 || discount > 1) {
             throw new IllegalArgumentException("Discount cannot be negative or above 1.");
@@ -140,8 +162,7 @@ public class Order implements Cloneable, Comparable<Order>, Serializable {
         return Objects.hash(Arrays.hashCode(items), status, customerName, discount, dateOrdered, total);
     }
 
-    public float getTotal() throws MenuItemNotFound {
-        calculateTotal();
+    public float getTotal() {
         return total * (1 - discount / 100);
     }
 
