@@ -28,6 +28,20 @@ public class Restaurant {
     }
 
     /**
+     * Sorts the orders in the restaurant using the given comparator.
+     * The recommended comparators are {@link Order#compareTo(Order)} for doing the default sort (by date)
+     *                                 {@link Order#STATUS_COMPARATOR} for sorting by status
+     *                                 {@link Order#TOTAL_COMPARATOR} for sorting by total price
+     *                                 or any other custom comparator.
+     * Apply reverse order by using {@link Comparator#reverseOrder()} on any comparator.
+     *
+     * @param comparator the comparator to use for sorting
+     */
+    public void sortOrders(Comparator<Order> comparator) {
+        orders.sort(comparator);
+    }
+
+    /**
      * Generates a report of the earnings in the restaurant.
      * The report includes the total earnings for the past day, week, and month.
      * Orders that don't have {@link OrderStatus#COMPLETED} will not be included in the report.
