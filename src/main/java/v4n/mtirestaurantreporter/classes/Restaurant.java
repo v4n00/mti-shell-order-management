@@ -3,8 +3,8 @@ package v4n.mtirestaurantreporter.classes;
 import v4n.mtirestaurantreporter.exceptions.InvalidFileFormat;
 import v4n.mtirestaurantreporter.exceptions.MenuItemNotFound;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class Restaurant {
     private static String MENU_ITEMS_FILE_NAME;
@@ -25,6 +25,75 @@ public class Restaurant {
 
         orders = OrderLoader.getOrders(ordersFileName);
         menuItems = MenuItems.get().keySet().toArray(new String[0]);
+    }
+
+    /**
+     * Generates a report of the earnings in the restaurant.
+     * The report includes the total earnings for the past day, week, and month.
+     * Orders that don't have {@link OrderStatus#COMPLETED} will not be included in the report.
+     *
+     * @param fileName the file name where the report should be saved
+     */
+    public void generateReportEarnings(String fileName) {
+        float dailyEarnings = 0.0f;
+        float weeklyEarnings = 0.0f;
+        float monthlyEarnings = 0.0f;
+
+        for(Order order : orders) {
+            if(order.getStatus() == OrderStatus.COMPLETED) {
+                if (order.getDateOrdered().getTime() >= System.currentTimeMillis() - 24 * 60 * 60 * 1000) {
+                    dailyEarnings += order.getTotal();
+                } else if (order.getDateOrdered().getTime() >= System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) {
+                    weeklyEarnings += order.getTotal();
+                } else if (order.getDateOrdered().getTime() >= System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000) {
+                    monthlyEarnings += order.getTotal();
+                }
+            }
+        }
+
+        try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName)))) {
+            bw.write("Total earnings for the past day: " + String.format("%.2f", dailyEarnings));
+            bw.newLine();
+
+            bw.write("Total earnings for the past 7 days: " + String.format("%.2f", weeklyEarnings));
+            bw.newLine();
+
+            bw.write("Total earnings for the past 30 days: " + String.format("%.2f", monthlyEarnings));
+            bw.newLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Generates a report of the top foods in the restaurant.
+     * The report includes the food items and the number of times they were ordered in {@link Comparator#reverseOrder()}.
+     *
+     * @param fileName the file name where the report should be saved
+     */
+    public void generateReportTopFoods(String fileName) {
+        Map<String, Integer> foodCount = new HashMap<>();
+
+        for (Order order : orders) {
+            for (String item : order.getItems()) {
+                foodCount.put(item, foodCount.getOrDefault(item, 0) + 1);
+            }
+        }
+
+        try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName)))) {
+            foodCount.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .forEach(entry -> {
+                        try {
+                            bw.write(entry.getKey() + ": " + entry.getValue());
+                            bw.newLine();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

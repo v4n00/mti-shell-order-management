@@ -2,9 +2,9 @@ package v4n.mtirestaurantreporter.classes;
 
 public enum OrderStatus {
     PENDING("Pending"),
+    PREPARING("Preparing"),
     COMPLETED("Completed"),
-    CANCELED("Canceled"),
-    PREPARING("Preparing");
+    CANCELED("Canceled");
 
     private final String displayName;
 

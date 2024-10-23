@@ -4,10 +4,7 @@ import v4n.mtirestaurantreporter.exceptions.InvalidFileFormat;
 import v4n.mtirestaurantreporter.exceptions.MenuItemNotFound;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
 public class Order implements Comparable<Order>, Serializable {
     private String[] items;
@@ -27,6 +24,9 @@ public class Order implements Comparable<Order>, Serializable {
     public int compareTo(Order order) {
         return dateOrdered.compareTo(order.dateOrdered);
     }
+
+    public static final Comparator<Order> STATUS_COMPARATOR = Comparator.comparing(Order::getStatus);
+    public static final Comparator<Order> TOTAL_COMPARATOR = Comparator.comparing(Order::getTotal);
 
     /**
      * Calculates the total price of the order.
@@ -48,7 +48,7 @@ public class Order implements Comparable<Order>, Serializable {
         this.total = total * (1 - discount / 100);
     }
 
-    Order() {
+    public Order() {
         this.setStatus(OrderStatus.PENDING);
         this.setDateOrdered(new Date());
         this.discount = 0.0f;
