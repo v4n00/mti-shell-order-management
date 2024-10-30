@@ -1,11 +1,11 @@
-package v4n.mtirestaurantreporter.classes;
+package classes;
 
+import exceptions.InvalidFileFormat;
+import exceptions.MenuItemNotFound;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import v4n.mtirestaurantreporter.exceptions.InvalidFileFormat;
-import v4n.mtirestaurantreporter.exceptions.MenuItemNotFound;
 
 import java.io.File;
 import java.lang.reflect.Field;

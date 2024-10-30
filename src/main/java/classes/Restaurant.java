@@ -1,7 +1,7 @@
-package v4n.mtirestaurantreporter.classes;
+package classes;
 
-import v4n.mtirestaurantreporter.exceptions.InvalidFileFormat;
-import v4n.mtirestaurantreporter.exceptions.MenuItemNotFound;
+import exceptions.InvalidFileFormat;
+import exceptions.MenuItemNotFound;
 
 import java.io.*;
 import java.util.*;

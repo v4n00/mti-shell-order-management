@@ -1,16 +1,16 @@
-package v4n.mtirestaurantreporter.classes;
+package classes;
 
-import v4n.mtirestaurantreporter.exceptions.InvalidFileFormat;
-import v4n.mtirestaurantreporter.exceptions.MenuItemNotFound;
+import exceptions.InvalidFileFormat;
+import exceptions.MenuItemNotFound;
 
 import java.io.Serializable;
 import java.util.*;
 
 public class Order implements Comparable<Order>, Serializable {
+    private String customerName;
     private String[] items;
     private OrderStatus status;
     private Date dateOrdered;
-    private String customerName;
     private float discount;
     private float total;
 

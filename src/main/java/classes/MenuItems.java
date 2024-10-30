@@ -1,6 +1,6 @@
-package v4n.mtirestaurantreporter.classes;
+package classes;
 
-import v4n.mtirestaurantreporter.exceptions.InvalidFileFormat;
+import exceptions.InvalidFileFormat;
 
 import java.io.*;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public class MenuItems {
         }
         return INSTANCE.items;
     }
-    
+
     private MenuItems() throws InvalidFileFormat {
         String menuItemsFileName = Restaurant.getMenuItemsFileName();
         File file = new File(menuItemsFileName);

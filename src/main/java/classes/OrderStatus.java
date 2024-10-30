@@ -1,4 +1,4 @@
-package v4n.mtirestaurantreporter.classes;
+package classes;
 
 public enum OrderStatus {
     PENDING("Pending"),

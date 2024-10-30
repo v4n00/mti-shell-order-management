@@ -1,4 +1,4 @@
-package v4n.mtirestaurantreporter.classes;
+package classes;
 
 import java.io.*;
 import java.util.ArrayList;
