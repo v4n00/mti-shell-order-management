@@ -2,15 +2,19 @@ package menus;
 
 import classes.Order;
 import classes.Restaurant;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 
 import java.util.List;
 
 public class ViewOrderMenu extends Menu {
     private static final int PAGE_SIZE = 9;
+    private final Restaurant restaurant;
 
     protected ViewOrderMenu(Terminal terminal, Restaurant restaurant, SelectedOrderIndex selectedOrderIndex) {
         super(terminal, restaurant.getOrders(), selectedOrderIndex);
+        this.restaurant = restaurant;
     }
 
     @Override
@@ -69,6 +73,46 @@ public class ViewOrderMenu extends Menu {
 
         terminal.writer().print("\033[?25l");
         terminal.flush();
+    }
+
+    @Override
+    protected MenuType executeOption() {
+        if(menuOptions[selectedOption] == MenuOption.MAIN) {
+            return super.executeOption();
+        } else {
+            if(menuOptions[selectedOption] == MenuOption.EDIT_ORDER) {
+                editOrder();
+            }
+            else if(menuOptions[selectedOption] == MenuOption.DELETE_ORDER) {
+                deleteOrder();
+            }
+            return MenuType.MAIN;
+        }
+    }
+
+    private void editOrder() {
+        return;
+    }
+
+    private void deleteOrder() {
+        terminal.writer().print("\033[" + (PAGE_SIZE + orders.get(selectedOrderIndex.value).getItems().length + 4) + ";0H");
+
+        LineReader reader = LineReaderBuilder.builder().terminal(terminal).build();
+        Util.printDelimitator(terminal);
+        boolean deleteConfirmed = Util.promptYesNo(terminal, reader, "\uDB80\uDDB4 Are you sure you want to delete this order? (y/n): ");
+        terminal.writer().println();
+
+        if (deleteConfirmed) {
+            restaurant.removeOrder(orders.get(selectedOrderIndex.value));
+
+            System.out.println("\uF00C Order has been deleted!");
+
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

@@ -14,14 +14,6 @@ public class Main {
         terminal.enterRawMode();
 
         Restaurant restaurant = new Restaurant("menu.txt", "orders.txt");
-        restaurant.addOrder(new Order(new String[]{"Pizza", "Pasta"}, "Alice", 10));
-        restaurant.addOrder(new Order(new String[]{"Burger", "Burger"}, "Bob", 20));
-        restaurant.addOrder(new Order(new String[]{"Salad", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda", "Soda"}, "Charlie", 30));
-        restaurant.addOrder(new Order(new String[]{"Salad", "Soda"}, "Charlie", 30));
-        restaurant.addOrder(new Order(new String[]{"Salad", "Soda"}, "Charlie", 30));
-        restaurant.addOrder(new Order(new String[]{"Salad", "Soda"}, "Charlie", 30));
-        restaurant.addOrder(new Order(new String[]{"Salad", "Soda"}, "Charlie", 30));
-
 
         new MenuController(terminal, restaurant).start();
     }

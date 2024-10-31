@@ -45,11 +45,13 @@ public class MainMenu extends Menu {
                         case 67:  // Right Arrow
                             if (hasMoreOrders()) {
                                 currentPage++;
+                                selectedOrderIndex.value = Math.min(orders.size() - 1, selectedOrderIndex.value + ITEMS_PER_PAGE);
                             }
                             break;
                         case 68:  // Left Arrow
                             if (currentPage > 0) {
                                 currentPage--;
+                                selectedOrderIndex.value = Math.max(0, selectedOrderIndex.value - ITEMS_PER_PAGE);
                             }
                             break;
                         case 65:  // Up Arrow
@@ -57,7 +59,7 @@ public class MainMenu extends Menu {
                                 selectedOption = Math.max(0, selectedOption - 1);
                             }
                             else {
-                                selectedOrderIndex.value = Math.max(0, selectedOrderIndex.value - 1);
+                                selectedOrderIndex.value = Math.max(currentPage * ITEMS_PER_PAGE, selectedOrderIndex.value - 1);
                             }
                             break;
                         case 66:  // Down Arrow
@@ -65,7 +67,7 @@ public class MainMenu extends Menu {
                                 selectedOption = Math.min(MenuOption.count() - 1, selectedOption + 1);
                             }
                             else {
-                                selectedOrderIndex.value = Math.min(orders.size() - 1, selectedOrderIndex.value + 1);
+                                selectedOrderIndex.value = Math.min((currentPage + 1) * ITEMS_PER_PAGE - 1, selectedOrderIndex.value + 1);
                             }
                             break;
                     }
@@ -89,8 +91,7 @@ public class MainMenu extends Menu {
 
     @Override
     protected void setMenuOptions() {
-        menuOptions = new MenuOption[] { MenuOption.VIEW_ORDER, MenuOption.ADD_ORDER, MenuOption.EDIT_ORDER,
-                MenuOption.DELETE_ORDER, MenuOption.SORT, MenuOption.GENERATE_REPORT, MenuOption.EXIT };
+        menuOptions = new MenuOption[] { MenuOption.VIEW_ORDER, MenuOption.ADD_ORDER, MenuOption.SORT, MenuOption.GENERATE_REPORT, MenuOption.EXIT };
     }
 
     private boolean hasMoreOrders() {

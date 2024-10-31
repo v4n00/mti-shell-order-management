@@ -4,11 +4,9 @@ public enum MenuType {
     MAIN(0),
     VIEW_ORDER(1),
     ADD_ORDER(2),
-    EDIT_ORDER(3),
-    DELETE_ORDER(4),
-    SORT(5),
-    GENERATE_REPORT(6),
-    EXIT(7);
+    SORT(3),
+    GENERATE_REPORT(4),
+    EXIT(5);
 
     private final int i;
 
