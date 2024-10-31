@@ -1,5 +1,6 @@
 package menus;
 
+import classes.OrderStatus;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
@@ -22,13 +23,15 @@ public class Util {
     public static final SimpleDateFormat SHORT_DATE_FORMAT = new SimpleDateFormat("HH:mm dd/MM");
     public static final SimpleDateFormat LONG_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 
-    public static String promptForName(Terminal terminal, LineReader reader) {
+    public static String promptForName(Terminal terminal, LineReader reader, String lastName) {
         String name;
         while (true) {
             try {
-                name = reader.readLine("\uF4FF Enter customer name (a-z, A-Z only): ").trim();
+                name = reader.readLine("\uF4FF Enter customer name (a-z, A-Z only)" + (lastName != null ? " (previous: " + lastName + ")" : "") + ": ").trim();
                 if (name.matches("^[a-zA-Z]+$")) { // Only letters a-z, A-Z
                     return name;
+                } else if(lastName != null && name.equals("")) {
+                    return lastName;
                 } else {
                     terminal.writer().println("\uEBFB Invalid input. Name must contain only letters.");
                 }
@@ -38,11 +41,14 @@ public class Util {
         }
     }
 
-    public static int promptForDiscount(Terminal terminal, LineReader reader) {
+    public static int promptForDiscount(Terminal terminal, LineReader reader, float lastDiscount) {
         String discountStr;
         while (true) {
             try {
-                discountStr = reader.readLine("\uF02B Enter discount (0-100): ").trim();
+                discountStr = reader.readLine("\uF02B Enter discount (0-100)" + (lastDiscount != 0.0F ? " (previous: " + lastDiscount + ")" : "") + ": ").trim();
+                if (discountStr.equals("") && lastDiscount != 0.0F) {
+                    return (int) lastDiscount;
+                }
                 int discountValue = Integer.parseInt(discountStr);
 
                 if (discountValue >= 0 && discountValue <= 100) {
@@ -66,9 +72,26 @@ public class Util {
                 return true;
             } else if ("n".equals(input)) {
                 return false;
-            } else {
-                terminal.writer().print("\uEBFB Invalid input. Please enter 'y' or 'n':");
-                terminal.flush();
+            } else if(input.isEmpty()) {
+                return true;
+            }
+        }
+    }
+
+    public static OrderStatus promptForStatus(Terminal terminal, LineReader reader, OrderStatus lastStatus) {
+        terminal.writer().print("\033[?25h");
+        while (true) {
+            try {
+                String statusStr = reader.readLine("\uF0E0 Enter status (Pending, Preparing, Completed)" + (lastStatus != null ? " (previous: " + lastStatus + ")" : "") + ": ").trim().toUpperCase();
+                if(statusStr.equals("") && lastStatus != null) {
+                    return lastStatus;
+                }
+                OrderStatus status = OrderStatus.valueOf(statusStr.toUpperCase());
+                return status;
+            } catch (IllegalArgumentException e) {
+                terminal.writer().println("\uEBFB Invalid input. Please enter a valid status.");
+            } catch (Exception e) {
+                terminal.writer().println("\uEBFB Error reading input: " + e.getMessage());
             }
         }
     }
@@ -80,9 +103,9 @@ public class Util {
         try {
             while (true) {
                 terminal.writer().println("\033[H\033[2J"); // Clear console
-                terminal.writer().println("\uF457 Add order: ");
+                terminal.writer().println(basketOld == null ? "\uF457 Add order: " : "\uF044 Edit order: ");
                 printDelimitator(terminal);
-                terminal.writer().println("\uDB80\uDC76 Select items to add to order (Press 'c' to confirm):");
+                terminal.writer().println("\uDB80\uDC76 Select items to add to order ('p' to add, 'r' to remove, 'Enter' to confirm):");
                 for (int i = 0; i < menuItems.length; i++) {
                     int noItems = basket.getOrDefault(menuItems[i], 0);
                     if (i == currentIndex) {
@@ -100,21 +123,24 @@ public class Util {
                     int next2 = terminal.reader().read();
 
                     if (next1 == 91) {
-                        switch (next2) {
-                            case 65: // Up arrow
-                                currentIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
-                                break;
-                            case 66: // Down arrow
-                                currentIndex = (currentIndex + 1) % menuItems.length;
-                                break;
-                        }
+                        currentIndex = switch (next2) {
+                            case 65 -> // Up arrow
+                                    (currentIndex - 1 + menuItems.length) % menuItems.length;
+                            case 66 -> // Down arrow
+                                    (currentIndex + 1) % menuItems.length;
+                            default -> currentIndex;
+                        };
                     }
                 } else if (ch == 13) { // Enter
+                    break;
+                } else if (ch == 'r' || ch == 'R') {
+                    String selectedItem = menuItems[currentIndex];
+                    if (basket.getOrDefault(selectedItem, 0) > 0) {
+                        basket.put(selectedItem, basket.get(selectedItem) - 1);
+                    }
+                } else if (ch == 'p' || ch == 'P') {
                     String selectedItem = menuItems[currentIndex];
                     basket.put(selectedItem, basket.getOrDefault(selectedItem, 0) + 1);
-                    terminal.writer().println("Added " + selectedItem + " to basket. Quantity: " + basket.get(selectedItem));
-                } else if (ch == 'c' || ch == 'C') {
-                    break;
                 }
             }
         } catch (Exception e) {
@@ -122,6 +148,14 @@ public class Util {
         }
 
         return generateBasketArray(basket);
+    }
+
+    public static Map<String, Integer> createBasketFromArray(String[] basket) {
+        Map<String, Integer> basketMap = new HashMap<>();
+        for (String item : basket) {
+            basketMap.put(item, basketMap.getOrDefault(item, 0) + 1);
+        }
+        return basketMap;
     }
 
     private static String[] generateBasketArray(Map<String, Integer> basket) {

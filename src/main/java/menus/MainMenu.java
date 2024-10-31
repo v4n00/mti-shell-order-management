@@ -4,6 +4,8 @@ import classes.Order;
 import classes.Restaurant;
 import org.jline.terminal.Terminal;
 
+import java.util.Comparator;
+
 import static menus.Util.*;
 
 public class MainMenu extends Menu {
@@ -14,11 +16,17 @@ public class MainMenu extends Menu {
     private int currentPage;
     private boolean isOnMenuSide;
 
+    private static int currentSort = 0;
+    private static final Comparator<Order>[] sortOptions = new Comparator[]{Comparator.naturalOrder(), Comparator.naturalOrder().reversed(),
+            Order.STATUS_COMPARATOR, Order.STATUS_COMPARATOR.reversed(), Order.TOTAL_COMPARATOR, Order.TOTAL_COMPARATOR.reversed()};
+    private final Restaurant restaurant;
+
     public MainMenu(Terminal terminal, Restaurant restaurant, SelectedOrderIndex selectedOrderIndex) {
         super(terminal, restaurant.getOrders(), selectedOrderIndex);
 
         this.currentPage = 0;
         this.isOnMenuSide = true;
+        this.restaurant = restaurant;
     }
 
     @Override
@@ -30,6 +38,18 @@ public class MainMenu extends Menu {
             if(menuType != null) {
                 return menuType;
             }
+        }
+    }
+
+    @Override
+    protected MenuType executeOption() {
+        if(menuOptions[selectedOption] != MenuOption.SORT) {
+            return super.executeOption();
+        }
+        else {
+            currentSort = (currentSort + 1) % sortOptions.length;
+            restaurant.sortOrders(sortOptions[currentSort]);
+            return MenuType.MAIN;
         }
     }
 
@@ -134,7 +154,17 @@ public class MainMenu extends Menu {
         int start = currentPage * ITEMS_PER_PAGE;
         int end = Math.min(start + ITEMS_PER_PAGE, orders.size());
 
-        terminal.writer().println(String.format("  %-14s %-12s %-17s %-11s %-10s", "\uDB80\uDCED Date", "\uDB85\uDDAB Status", "\uF4FF Customer", "\uEFC7 Total", "\uDB80\uDC76 Items"));
+        StringBuilder header = new StringBuilder();
+        header.append("  ");
+        String dateIcon = currentSort == 0 ? "\uEB6E" : currentSort == 1 ? "\uEB71" : "\uDB80\uDCED";
+        header.append(String.format("%-14s", dateIcon + " Date"));
+        String statusIcon = currentSort == 2 ? "\uEB6E" : currentSort == 3 ? "\uEB71" : "\uDB85\uDDAB";
+        header.append(String.format("%-12s", statusIcon + " Status"));
+        header.append(String.format("%-17s", "\uF4FF Customer"));
+        String totalIcon = currentSort == 4 ? "\uEB6E" : currentSort == 5 ? "\uEB71" : "\uEFC7";
+        header.append(String.format("%-11s", totalIcon + " Total"));
+        header.append(String.format("%-10s", "\uDB80\uDC76 Items"));
+        terminal.writer().println(header);
 
         for (int i = start; i < end; i++) {
             Order currentOrder = orders.get(i);

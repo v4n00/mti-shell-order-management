@@ -35,8 +35,8 @@ public class AddOrderMenu extends Menu {
     protected MenuType handleInput() {
         basket = promptForItems(terminal, MenuItems.get().keySet().toArray(new String[0]), null);
         terminal.writer().print("\033[?25h");
-        customerName = promptForName(terminal, reader);
-        discount = promptForDiscount(terminal, reader);
+        customerName = promptForName(terminal, reader, null);
+        discount = promptForDiscount(terminal, reader, 0);
         printDelimitator(terminal);
 
         terminal.writer().println("\uF4FF Customer Name: " + customerName);
@@ -48,7 +48,7 @@ public class AddOrderMenu extends Menu {
         terminal.writer().println();
         printDelimitator(terminal);
 
-        boolean orderConfirmed = promptYesNo(terminal, reader, "\uDB85\uDC01 Would you like to save the order? (y/n):");
+        boolean orderConfirmed = promptYesNo(terminal, reader, "\uDB85\uDC01 Would you like to save the order? (Y/n): ");
         terminal.writer().println();
 
         if (orderConfirmed) {

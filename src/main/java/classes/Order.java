@@ -86,7 +86,7 @@ public class Order implements Comparable<Order>, Serializable {
         this.dateOrdered = dateOrdered;
     }
 
-    private void setCustomerName(String customerName) {
+    public void setCustomerName(String customerName) {
         if(customerName == null || customerName.isEmpty()) {
             throw new IllegalArgumentException("Customer name cannot be null or empty.");
         }

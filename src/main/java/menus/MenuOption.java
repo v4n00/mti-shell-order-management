@@ -6,7 +6,7 @@ public enum MenuOption {
     ADD_ORDER("\uF457 Add Order", MenuType.ADD_ORDER),
     EDIT_ORDER("\uF044 Edit Order", null),
     DELETE_ORDER("\uDB80\uDDB4 Delete Order", null),
-    SORT("\uF0DC Sort Orders", MenuType.SORT),
+    SORT("\uF0DC Sort Orders", null),
     GENERATE_REPORT("\uDB85\uDD17 Generate Report", MenuType.GENERATE_REPORT),
     EXIT("\uDB80\uDE06 Exit", MenuType.EXIT);
 

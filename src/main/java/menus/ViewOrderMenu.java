@@ -1,6 +1,8 @@
 package menus;
 
+import classes.MenuItems;
 import classes.Order;
+import classes.OrderStatus;
 import classes.Restaurant;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -8,9 +10,13 @@ import org.jline.terminal.Terminal;
 
 import java.util.List;
 
+import static menus.Util.printDelimitator;
+import static menus.Util.promptYesNo;
+
 public class ViewOrderMenu extends Menu {
     private static final int PAGE_SIZE = 9;
     private final Restaurant restaurant;
+    private LineReader reader;
 
     protected ViewOrderMenu(Terminal terminal, Restaurant restaurant, SelectedOrderIndex selectedOrderIndex) {
         super(terminal, restaurant.getOrders(), selectedOrderIndex);
@@ -80,8 +86,11 @@ public class ViewOrderMenu extends Menu {
         if(menuOptions[selectedOption] == MenuOption.MAIN) {
             return super.executeOption();
         } else {
+            terminal.writer().print("\033[" + (PAGE_SIZE + orders.get(selectedOrderIndex.value).getItems().length + 4) + ";0H");
+            reader = LineReaderBuilder.builder().terminal(terminal).build();
+            Util.printDelimitator(terminal);
             if(menuOptions[selectedOption] == MenuOption.EDIT_ORDER) {
-                editOrder();
+                return editOrder();
             }
             else if(menuOptions[selectedOption] == MenuOption.DELETE_ORDER) {
                 deleteOrder();
@@ -90,16 +99,49 @@ public class ViewOrderMenu extends Menu {
         }
     }
 
-    private void editOrder() {
-        return;
+    private MenuType editOrder() {
+        String[] basket = Util.promptForItems(terminal, MenuItems.get().keySet().toArray(new String[0]),
+                Util.createBasketFromArray(orders.get(selectedOrderIndex.value).getItems()));
+        String customerName = Util.promptForName(terminal, reader, orders.get(selectedOrderIndex.value).getCustomerName());
+        OrderStatus status = Util.promptForStatus(terminal, reader, orders.get(selectedOrderIndex.value).getStatus());
+        int discount = Util.promptForDiscount(terminal, reader, orders.get(selectedOrderIndex.value).getDiscount());
+
+        printDelimitator(terminal);
+
+        terminal.writer().println("\uF4FF Customer Name: " + customerName);
+        terminal.writer().println("\uDB85\uDDAB Status: " + status);
+        terminal.writer().println("\uF02B Discount: " + discount);
+        terminal.writer().print("\uDB80\uDC76 Items: ");
+        for (String item : basket) {
+            terminal.writer().print(item + " ");
+        }
+        terminal.writer().println();
+        printDelimitator(terminal);
+
+        boolean orderConfirmed = promptYesNo(terminal, reader, "\uDB85\uDC01 Would you like to overwrite the order? (Y/n): ");
+        terminal.writer().println();
+
+        if (orderConfirmed) {
+            orders.get(selectedOrderIndex.value).setItems(basket);
+            orders.get(selectedOrderIndex.value).setCustomerName(customerName);
+            orders.get(selectedOrderIndex.value).setDiscount(discount);
+            orders.get(selectedOrderIndex.value).setStatus(status);
+            System.out.println("\uF00C Order has been saved!");
+        } else {
+            System.out.println("\uF467 Order was not saved.");
+        }
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        return MenuType.VIEW_ORDER;
     }
 
     private void deleteOrder() {
-        terminal.writer().print("\033[" + (PAGE_SIZE + orders.get(selectedOrderIndex.value).getItems().length + 4) + ";0H");
-
-        LineReader reader = LineReaderBuilder.builder().terminal(terminal).build();
-        Util.printDelimitator(terminal);
-        boolean deleteConfirmed = Util.promptYesNo(terminal, reader, "\uDB80\uDDB4 Are you sure you want to delete this order? (y/n): ");
+        boolean deleteConfirmed = Util.promptYesNo(terminal, reader, "\uDB80\uDDB4 Are you sure you want to delete this order? (Y/n): ");
         terminal.writer().println();
 
         if (deleteConfirmed) {

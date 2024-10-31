@@ -12,6 +12,7 @@ public class MenuController {
     private final Menu mainMenu;
     private final Menu viewOrderMenu;
     private final Menu addOrderMenu;
+    private final Menu generateReportMenu;
 
     public MenuController(Terminal terminal, Restaurant restaurant) {
         this.currentMenu = MenuType.MAIN;
@@ -22,13 +23,10 @@ public class MenuController {
         this.mainMenu = new MainMenu(terminal, restaurant, selectedOrderIndex);
         this.viewOrderMenu = new ViewOrderMenu(terminal, restaurant, selectedOrderIndex);
         this.addOrderMenu = new AddOrderMenu(terminal, restaurant, selectedOrderIndex);
+        this.generateReportMenu = new GenerateReportMenu(terminal, restaurant, selectedOrderIndex);
     }
 
     public void start() {
-        // TODO:
-        // edit order
-        // sort order
-        // generate report
         while (true) {
             switch (currentMenu) {
                 case MAIN:
@@ -40,8 +38,11 @@ public class MenuController {
                 case ADD_ORDER:
                     currentMenu = addOrderMenu.display();
                     break;
+                case GENERATE_REPORT:
+                    currentMenu = generateReportMenu.display();
+                    break;
                 case EXIT:
-                    terminal.writer().println("Exiting the application...");
+                    terminal.writer().println("Exiting and saving...");
                     terminal.writer().print("\033[?25h");
                     terminal.flush();
                     restaurant.saveOrders();
