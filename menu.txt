@@ -1,6 +1,0 @@
-Burger,5.9
-Pizza,7.2
-Water,0.5
-Pasta,6.0
-Salad,4.7
-Soda,1.3

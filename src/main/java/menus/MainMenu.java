@@ -84,10 +84,10 @@ public class MainMenu extends Menu {
                             break;
                         case 66:  // Down Arrow
                             if(isOnMenuSide) {
-                                selectedOption = Math.min(MenuOption.count() - 1, selectedOption + 1);
+                                selectedOption = Math.min(menuOptions.length - 1, selectedOption + 1);
                             }
                             else {
-                                selectedOrderIndex.value = Math.min((currentPage + 1) * ITEMS_PER_PAGE - 1, selectedOrderIndex.value + 1);
+                                selectedOrderIndex.value = Math.min((currentPage + 1) * ITEMS_PER_PAGE - 1 - (ITEMS_PER_PAGE - orders.size() % ITEMS_PER_PAGE), selectedOrderIndex.value + 1);
                             }
                             break;
                     }

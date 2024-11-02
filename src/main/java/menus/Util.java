@@ -41,13 +41,13 @@ public class Util {
         }
     }
 
-    public static int promptForDiscount(Terminal terminal, LineReader reader, float lastDiscount) {
+    public static int promptForDiscount(Terminal terminal, LineReader reader, int lastDiscount) {
         String discountStr;
         while (true) {
             try {
-                discountStr = reader.readLine("\uF02B Enter discount (0-100)" + (lastDiscount != 0.0F ? " (previous: " + lastDiscount + ")" : "") + ": ").trim();
-                if (discountStr.equals("") && lastDiscount != 0.0F) {
-                    return (int) lastDiscount;
+                discountStr = reader.readLine("\uF02B Enter discount (0-100)" + (lastDiscount != -1 ? " (previous: " + lastDiscount + ")" : "") + ": ");
+                if (discountStr.isEmpty() && lastDiscount != -1) {
+                    return lastDiscount;
                 }
                 int discountValue = Integer.parseInt(discountStr);
 
@@ -97,13 +97,13 @@ public class Util {
     }
 
     public static String[] promptForItems(Terminal terminal, String[] menuItems, Map<String, Integer> basketOld) {
-        Map<String, Integer> basket = basketOld == null ? new HashMap<>() : basketOld;
+        Map<String, Integer> basket = basketOld == null || basketOld.isEmpty() ? new HashMap<>() : basketOld;
         int currentIndex = 0;
 
         try {
             while (true) {
                 terminal.writer().println("\033[H\033[2J"); // Clear console
-                terminal.writer().println(basketOld == null ? "\uF457 Add order: " : "\uF044 Edit order: ");
+                terminal.writer().println(basketOld == null || basketOld.isEmpty() ? "\uF457 Add order: " : "\uF044 Edit order: ");
                 printDelimitator(terminal);
                 terminal.writer().println("\uDB80\uDC76 Select items to add to order ('p' to add, 'r' to remove, 'Enter' to confirm):");
                 for (int i = 0; i < menuItems.length; i++) {
@@ -147,6 +147,16 @@ public class Util {
             terminal.writer().println("\uEBFB Error reading input: " + e.getMessage());
         }
 
+        if(basket.isEmpty()) {
+            terminal.writer().println("\uEBFB Basket is empty. Please add items to the basket.");
+            terminal.flush();
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return promptForItems(terminal, menuItems, basket);
+        }
         return generateBasketArray(basket);
     }
 

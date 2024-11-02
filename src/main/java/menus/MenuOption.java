@@ -8,6 +8,10 @@ public enum MenuOption {
     DELETE_ORDER("\uDB80\uDDB4 Delete Order", null),
     SORT("\uF0DC Sort Orders", null),
     GENERATE_REPORT("\uDB85\uDD17 Generate Report", MenuType.GENERATE_REPORT),
+    TOP_FOODS("\uDB82\uDD87 Top Foods", null),
+    EARNINGS("\uED0B Earnings", null),
+    MARK_AS_COMPLETED("\uDB80\uDD33 Mark as Completed", null),
+    MARK_AS_PREPARING("\uF013 Mark as Preparing", null),
     EXIT("\uDB80\uDE06 Exit", MenuType.EXIT);
 
     private final String label;

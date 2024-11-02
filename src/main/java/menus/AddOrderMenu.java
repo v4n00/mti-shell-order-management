@@ -36,7 +36,7 @@ public class AddOrderMenu extends Menu {
         basket = promptForItems(terminal, MenuItems.get().keySet().toArray(new String[0]), null);
         terminal.writer().print("\033[?25h");
         customerName = promptForName(terminal, reader, null);
-        discount = promptForDiscount(terminal, reader, 0);
+        discount = promptForDiscount(terminal, reader, -1);
         printDelimitator(terminal);
 
         terminal.writer().println("\uF4FF Customer Name: " + customerName);

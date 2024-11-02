@@ -25,6 +25,9 @@ public class ViewOrderMenu extends Menu {
 
     @Override
     public MenuType display() {
+        if(orders.isEmpty()) {
+            return MenuType.MAIN;
+        }
         while(true) {
             displayOrder(orders.get(selectedOrderIndex.value));
             displayMenu();
@@ -49,7 +52,7 @@ public class ViewOrderMenu extends Menu {
                             selectedOption = Math.max(0, selectedOption - 1);
                             break;
                         case 66:  // Down Arrow
-                            selectedOption = Math.min(MenuOption.count() - 1, selectedOption + 1);
+                            selectedOption = Math.min(menuOptions.length - 1, selectedOption + 1);
                             break;
                     }
                 }
@@ -90,21 +93,60 @@ public class ViewOrderMenu extends Menu {
             reader = LineReaderBuilder.builder().terminal(terminal).build();
             Util.printDelimitator(terminal);
             if(menuOptions[selectedOption] == MenuOption.EDIT_ORDER) {
-                return editOrder();
+                editOrder();
+            }
+            else if(menuOptions[selectedOption] == MenuOption.MARK_AS_PREPARING) {
+                markAsPreparing();
+            }
+            else if(menuOptions[selectedOption] == MenuOption.MARK_AS_COMPLETED) {
+                markAsCompleted();
             }
             else if(menuOptions[selectedOption] == MenuOption.DELETE_ORDER) {
-                deleteOrder();
+                return deleteOrder();
             }
-            return MenuType.MAIN;
+
+            return MenuType.VIEW_ORDER;
         }
     }
 
-    private MenuType editOrder() {
+    private void markAsCompleted() {
+        boolean markAsCompleted = Util.promptYesNo(terminal, reader, "\uDB80\uDD33 Mark this order as completed? (Y/n): ");
+        terminal.writer().println();
+
+        if (markAsCompleted) {
+            orders.get(selectedOrderIndex.value).setStatus(OrderStatus.COMPLETED);
+            System.out.println("\uF00C Order has been marked as completed!");
+
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void markAsPreparing() {
+        boolean markAsPreparing = Util.promptYesNo(terminal, reader, "\uF013 Mark this order as preparing? (Y/n): ");
+        terminal.writer().println();
+
+        if (markAsPreparing) {
+            orders.get(selectedOrderIndex.value).setStatus(OrderStatus.PREPARING);
+            System.out.println("\uF00C Order has been marked as preparing!");
+
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void editOrder() {
         String[] basket = Util.promptForItems(terminal, MenuItems.get().keySet().toArray(new String[0]),
                 Util.createBasketFromArray(orders.get(selectedOrderIndex.value).getItems()));
         String customerName = Util.promptForName(terminal, reader, orders.get(selectedOrderIndex.value).getCustomerName());
         OrderStatus status = Util.promptForStatus(terminal, reader, orders.get(selectedOrderIndex.value).getStatus());
-        int discount = Util.promptForDiscount(terminal, reader, orders.get(selectedOrderIndex.value).getDiscount());
+        int discount = Util.promptForDiscount(terminal, reader, (int) orders.get(selectedOrderIndex.value).getDiscount());
 
         printDelimitator(terminal);
 
@@ -136,11 +178,9 @@ public class ViewOrderMenu extends Menu {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-        return MenuType.VIEW_ORDER;
     }
 
-    private void deleteOrder() {
+    private MenuType deleteOrder() {
         boolean deleteConfirmed = Util.promptYesNo(terminal, reader, "\uDB80\uDDB4 Are you sure you want to delete this order? (Y/n): ");
         terminal.writer().println();
 
@@ -148,19 +188,25 @@ public class ViewOrderMenu extends Menu {
             restaurant.removeOrder(orders.get(selectedOrderIndex.value));
 
             System.out.println("\uF00C Order has been deleted!");
+            selectedOrderIndex.value = Math.max(0, selectedOrderIndex.value - 1);
 
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+
+            return MenuType.MAIN;
         }
+        return MenuType.VIEW_ORDER;
     }
 
     @Override
     protected void setMenuOptions() {
         menuOptions = new MenuOption[] {
                 MenuOption.EDIT_ORDER,
+                MenuOption.MARK_AS_PREPARING,
+                MenuOption.MARK_AS_COMPLETED,
                 MenuOption.DELETE_ORDER,
                 MenuOption.MAIN
         };
