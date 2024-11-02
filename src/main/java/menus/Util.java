@@ -28,7 +28,7 @@ public class Util {
         while (true) {
             try {
                 name = reader.readLine("\uF4FF Enter customer name (a-z, A-Z only)" + (lastName != null ? " (previous: " + lastName + ")" : "") + ": ").trim();
-                if (name.matches("^[a-zA-Z]+$")) { // Only letters a-z, A-Z
+                if (name.matches("^[a-zA-Z ]+$")) { // Only letters a-z, A-Z and space
                     return name;
                 } else if(lastName != null && name.equals("")) {
                     return lastName;
