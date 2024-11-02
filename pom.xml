@@ -38,7 +38,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!-- ... -->
                     <archive>
                         <manifest>
                             <mainClass>Main</mainClass>
