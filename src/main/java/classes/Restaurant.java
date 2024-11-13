@@ -57,9 +57,11 @@ public class Restaurant {
             if(order.getStatus() == OrderStatus.COMPLETED) {
                 if (order.getDateOrdered().getTime() >= System.currentTimeMillis() - 24 * 60 * 60 * 1000) {
                     dailyEarnings += order.getTotal();
-                } else if (order.getDateOrdered().getTime() >= System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) {
+                }
+                if (order.getDateOrdered().getTime() >= System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) {
                     weeklyEarnings += order.getTotal();
-                } else if (order.getDateOrdered().getTime() >= System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000) {
+                }
+                if (order.getDateOrdered().getTime() >= System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000) {
                     monthlyEarnings += order.getTotal();
                 }
             }

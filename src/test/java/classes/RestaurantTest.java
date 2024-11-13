@@ -95,7 +95,7 @@ class RestaurantTest {
             assertEquals("Total earnings for the past 7 days: " + String.format("%.2f", totalWeek), line);
 
             line = br.readLine();
-            float totalMonth = order3.getTotal() + order4.getTotal();
+            float totalMonth = order1.getTotal() + order3.getTotal() + order4.getTotal();
             assertEquals("Total earnings for the past 30 days: " + String.format("%.2f", totalMonth), line);
         } catch (IOException e) {
             throw new RuntimeException(e);

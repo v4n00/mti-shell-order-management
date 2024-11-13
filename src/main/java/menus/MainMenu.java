@@ -87,7 +87,9 @@ public class MainMenu extends Menu {
                                 selectedOption = Math.min(menuOptions.length - 1, selectedOption + 1);
                             }
                             else {
-                                selectedOrderIndex.value = Math.min((currentPage + 1) * ITEMS_PER_PAGE - 1 - (ITEMS_PER_PAGE - orders.size() % ITEMS_PER_PAGE), selectedOrderIndex.value + 1);
+                                int maxPages = orders.size() / ITEMS_PER_PAGE + 1;
+                                int offset = currentPage + 1 < maxPages ? 0 : ITEMS_PER_PAGE - orders.size() % (ITEMS_PER_PAGE);
+                                selectedOrderIndex.value = Math.min((currentPage + 1) * ITEMS_PER_PAGE - 1 - offset, selectedOrderIndex.value + 1);
                             }
                             break;
                     }

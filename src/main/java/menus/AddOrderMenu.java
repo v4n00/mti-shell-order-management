@@ -9,6 +9,7 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static menus.Util.*;
@@ -53,6 +54,7 @@ public class AddOrderMenu extends Menu {
 
         if (orderConfirmed) {
             restaurant.addOrder(new Order(basket, customerName, discount));
+            restaurant.sortOrders(Comparator.reverseOrder());
             System.out.println("\uF00C Order has been saved!");
         } else {
             System.out.println("\uF467 Order was not saved.");
